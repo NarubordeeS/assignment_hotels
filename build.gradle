@@ -1,0 +1,55 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+    }
+}
+
+apply plugin: 'application'
+apply plugin: 'java'
+apply plugin: 'spring-boot'
+apply plugin: 'war'
+apply plugin: 'jacoco'
+
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
+
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+war {
+    baseName = 'ROOT'
+}
+
+repositories {
+    mavenCentral()
+}
+
+[compileJava, compileTestJava]*.options*.compilerArgs = ["-Xlint:-serial", "-Xlint:deprecation"]
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter-actuator"
+    compile "org.springframework.boot:spring-boot-starter-web"
+    compile "org.projectlombok:lombok:$lombokVersion"
+    compile "com.google.guava:guava:19.0"
+    compile "com.univocity:univocity-parsers:$csvVersion"
+    compile "joda-time:joda-time:2.9.3"
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
+    testCompile "junit:junit"
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+    testCompile "com.jayway.jsonpath:json-path"
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.4'
+}

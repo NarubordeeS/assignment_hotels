@@ -1,0 +1,25 @@
+# Core
+spring:
+  application:
+    name: hotels
+  profiles.active: local
+  main:
+    web-environment: true
+
+  jackson:
+    property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+
+
+---
+spring:
+  profiles: local
+  img: http://alpha-cdn-p1.itruemart-dev.com/pcms/uploads
+
+hotels:
+  rateLimit: 10
+---
+spring:
+  profiles: production
+  img: http://alpha-cdn-p1.itruemart-dev.com/pcms/uploads
+hotels:
+  rateLimit: 10
