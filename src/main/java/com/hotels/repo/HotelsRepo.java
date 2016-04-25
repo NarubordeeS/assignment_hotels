@@ -20,9 +20,21 @@ import java.util.stream.Collectors;
 @Component
 public class HotelsRepo {
 
+    public HotelsRepo(){
+
+    }
+
+    public HotelsRepo(CSVHelper csvHelper){
+        this.csvHelper = csvHelper;
+        InitDB();
+    }
+
     Path path = Paths.get(getClass().getResource("/file/").getPath() + "hoteldb.csv");
 
     private List<HotelsModel> inMemoryDB = null;
+
+    @Autowired
+    CSVHelper csvHelper;
 
     @PostConstruct
     private void InitDB() {
@@ -32,7 +44,6 @@ public class HotelsRepo {
     };
 
     private List<HotelsModel> parseHotels() throws Exception {
-        CSVHelper csvHelper = new CSVHelper();
         List<HotelsModel> rows = csvHelper.parseCSV(path.toString()).stream()
                 .map(row -> {
                     HotelsModel hotelsModel = new HotelsModel();

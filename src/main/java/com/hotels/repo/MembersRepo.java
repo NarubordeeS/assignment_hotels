@@ -3,6 +3,7 @@ package com.hotels.repo;
 import com.hotels.model.HotelsModel;
 import com.hotels.model.MembersModel;
 import com.hotels.utility.CSVHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -21,6 +22,9 @@ public class MembersRepo {
 
     final Path path = Paths.get(getClass().getResource("/file/").getPath() + "memberdb.csv");
 
+    @Autowired
+    CSVHelper csvHelper;
+
     @PostConstruct
     private void InitDB() {
         if (inMemoryDB == null) {
@@ -28,8 +32,13 @@ public class MembersRepo {
         }
     }
 
+    public MembersRepo(CSVHelper csvHelper){
+        this.csvHelper = csvHelper;
+        InitDB();
+    }
+
+
     public List<MembersModel> parseMember() throws Exception {
-        CSVHelper csvHelper = new CSVHelper();
         List<MembersModel> rows = csvHelper.parseCSV(path.toString()).stream()
                 .map(row -> {
                     MembersModel membersModel = new MembersModel();

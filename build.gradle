@@ -34,6 +34,32 @@ repositories {
     mavenCentral()
 }
 
+jacoco {
+    toolVersion = '0.7.1.201405082137'
+    reportsDir = file("$buildDir/reports/jacoco")
+}
+jacocoTestReport {
+    group = 'Reporting'
+    description = 'Generate Jacoco coverage reports after running tests.'
+
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.destination "${buildDir}/reports/jacoco/html"
+    }
+
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['com/hotels/model/**',
+                              'com/hotels/response/**',
+                              'com/hotels/utility/**',
+                              'com/hotels/config/**'
+                    ])
+        })
+    }
+}
+
 [compileJava, compileTestJava]*.options*.compilerArgs = ["-Xlint:-serial", "-Xlint:deprecation"]
 
 dependencies {
