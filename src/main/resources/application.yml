@@ -13,13 +13,11 @@ spring:
 ---
 spring:
   profiles: local
-  img: http://alpha-cdn-p1.itruemart-dev.com/pcms/uploads
 
-hotels:
-  rateLimit: 10
+  hotels:
+    rateLimit: 10
 ---
 spring:
   profiles: production
-  img: http://alpha-cdn-p1.itruemart-dev.com/pcms/uploads
-hotels:
-  rateLimit: 10
+  hotels:
+    rateLimit: 10

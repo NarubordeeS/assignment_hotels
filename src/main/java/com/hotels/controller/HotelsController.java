@@ -33,15 +33,16 @@ public class HotelsController {
     HttpEntity<Response> getHotels(@PathVariable String key,
                                       @RequestParam(required = false, value = "sort") String sortKey,
                                       @RequestParam(required = false, value = "direction") String direction,
-                                      @RequestParam(required = false, value = "hotel_id") Integer hotelId) {
+                                      @RequestParam(required = false, value = "hotel_id") Integer hotelId,
+                                      @RequestParam(required = false, value = "city", defaultValue = "") String cityName) {
 
         List<HotelsModel> results = null;
         try {
-            if (hotelId != null) {
-                results = hotelsService.getHotelsByHotelId(hotelId,key);
+            if(hotelId == null && "".equals(cityName)) {
+                results = hotelsService.getAll(sortKey,direction,key);
             }
             else {
-                results = hotelsService.getAll(sortKey,direction,key);
+                results = hotelsService.getHotelsByHotelId(hotelId, cityName, key);
             }
         } catch (RateLimitExceptions rateLimitExceptions) {
             return new Response(rateLimitExceptions.getMessage()).build(HttpStatus.BAD_REQUEST);

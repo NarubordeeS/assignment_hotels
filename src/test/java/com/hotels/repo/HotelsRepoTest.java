@@ -61,18 +61,54 @@ public class HotelsRepoTest {
 
         hotelsRepo = new HotelsRepo(csvHelper);
 
-
     }
 
     @Test
     public void shouldfindHotelByIdCorrectly() throws FileNotFoundException {
-        List<HotelsModel> results = hotelsRepo.findHotelById(1);
+        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(1,"");
         assertNotNull(results);
         HotelsModel result = results.get(0);
         assertEquals("Bangkok",result.getCity());
         assertEquals(1,result.getHotelId().intValue());
         assertEquals("Deluxe",result.getRoom());
         assertEquals(new Double("100"),result.getPrice());
+    }
+
+    @Test
+    public void shouldfindHotelByCityCorrectly() throws FileNotFoundException {
+        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(null,"Bangkok");
+        assertNotNull(results);
+        HotelsModel result = results.get(0);
+        assertEquals("Bangkok",result.getCity());
+        assertEquals(1,result.getHotelId().intValue());
+        assertEquals("Deluxe",result.getRoom());
+        assertEquals(new Double("100"),result.getPrice());
+    }
+
+
+    @Test
+    public void shouldfindHotelByCityWhenParametersAreNullCorrectly() throws FileNotFoundException {
+        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(null,"");
+        assertNotNull(results);
+        assertEquals(3,results.size());
+        HotelsModel result = results.get(0);
+        assertEquals("Bangkok",result.getCity());
+        assertEquals(1,result.getHotelId().intValue());
+        assertEquals("Deluxe",result.getRoom());
+        assertEquals(new Double("100"),result.getPrice());
+    }
+
+
+    @Test
+    public void shouldfindHotelByIdAndCityCorrectly() throws FileNotFoundException {
+        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(1,"Bangkok");
+        assertNotNull(results);
+        HotelsModel result = results.get(0);
+        assertEquals("Bangkok",result.getCity());
+        assertEquals(1,result.getHotelId().intValue());
+        assertEquals("Deluxe",result.getRoom());
+        assertEquals(new Double("100"),result.getPrice());
+
     }
 
     @Test

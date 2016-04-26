@@ -1,5 +1,6 @@
 package com.hotels.repo;
 
+import com.hotels.constant.RateLimitExceptions;
 import com.hotels.model.HotelsModel;
 import com.hotels.model.MembersModel;
 import com.hotels.utility.CSVHelper;
@@ -68,5 +69,24 @@ public class MemberRepoTest {
         assertEquals("CCCCC",results.get(2).getName());
         assertEquals(5,results.get(2).getLimit().intValue());
     }
+
+    @Test
+    public void shouldFindApiByKeyCorrectly() throws FileNotFoundException {
+        List<MembersModel> results = membersRepo.findByApiKey("AAAAA");
+        assertNotNull(results);
+        assertEquals(1,results.size());
+        assertEquals("AAAAA",results.get(0).getName());
+        assertEquals(1,results.get(0).getLimit().intValue());
+
+    }
+
+    @Test(expected = FileNotFoundException.class)
+    public void shouldThrownExceptionWhenFileNotFoundCorrectly() throws FileNotFoundException {
+        when(csvHelper.parseCSV(anyString())).thenThrow(new FileNotFoundException());
+        MembersRepo membersRepo = new MembersRepo(csvHelper);
+        assert(false);
+
+    }
+
 
 }

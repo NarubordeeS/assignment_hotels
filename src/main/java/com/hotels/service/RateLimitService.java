@@ -2,6 +2,7 @@ package com.hotels.service;
 
 import com.hotels.constant.ExceptionConstants;
 import com.hotels.constant.RateLimitExceptions;
+import com.hotels.model.MembersModel;
 import com.hotels.model.UsersModel;
 import com.hotels.repo.MembersRepo;
 import org.joda.time.DateTime;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by narubordeesarnsuwan on 4/24/2016 AD.
@@ -22,17 +24,18 @@ public class RateLimitService {
     MembersRepo membersRepo;
 
     @Value("${hotels.rateLimit}")
+
     private Integer rateLimit;
 
-    private HashMap<String, UsersModel> limitDB = new HashMap<>();
-    private HashMap<String, Integer> memberDB = new HashMap<>();
+    public RateLimitService(){
 
-    @PostConstruct
-    private void InitMemberDB()
-    {
-        membersRepo.findAll()
-                .forEach(each-> memberDB.put(each.getName(),each.getLimit()));
     }
+
+    public RateLimitService(MembersRepo membersRepo){
+        this.membersRepo = membersRepo;
+    }
+
+    private HashMap<String, UsersModel> limitDB = new HashMap<>();
 
     final private Integer GLOBAL_LIMIT = 10;
     final private Integer GLOBAL_SUSPEND = 300;
@@ -46,7 +49,7 @@ public class RateLimitService {
                 limitDB.put(key,new UsersModel(currentTime.plusSeconds(limitTime),false));
             } else {
                 //prevent user try to flush requests
-                //that cause suspend time increase 5 min per request
+                //that cause suspend time is increased 5 min per request
                 if (users.getSuspend().booleanValue() == false) {
                     users = new UsersModel(users.getAvailableTime().plusSeconds(GLOBAL_SUSPEND), true);
                     limitDB.put(key, users);
@@ -63,8 +66,9 @@ public class RateLimitService {
     }
 
     private Integer checkMember(String key) {
-        if (memberDB.containsKey(key)){
-            return memberDB.get(key);
+        List<MembersModel> results = membersRepo.findByApiKey(key);
+        if (results.size()>0){
+            return results.get(0).getLimit();
         }
         else {
             return GLOBAL_LIMIT;

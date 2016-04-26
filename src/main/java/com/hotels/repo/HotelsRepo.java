@@ -9,6 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.Null;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -69,10 +70,33 @@ public class HotelsRepo {
         return hotelsDB;
 
     }
-    public List<HotelsModel> findHotelById(Integer hotelId) {
-        return inMemoryDB.stream().filter(
-                row -> row.getHotelId().intValue() == hotelId.intValue())
-                .collect(Collectors.toList());
+
+//    public List<HotelsModel> findHotelById(Integer hotelId) {
+//        return inMemoryDB.stream().filter(
+//                row -> row.getHotelId().intValue() == hotelId.intValue())
+//                .collect(Collectors.toList());
+//    }
+
+    public List<HotelsModel> findHotelByHotelIdAndCityName(Integer hotelId, String cityName) {
+        if (hotelId != null && !cityName.isEmpty()){
+            return inMemoryDB.stream().filter(
+                    row -> (row.getHotelId().intValue() == hotelId.intValue()
+                    && row.getCity().equals(cityName)))
+                    .collect(Collectors.toList());
+        }
+        else if (hotelId == null && !cityName.isEmpty()){
+            return inMemoryDB.stream().filter(
+                    row -> (row.getCity().equals(cityName)))
+                    .collect(Collectors.toList());
+        }
+        else if (cityName.isEmpty() && hotelId != null) {
+            return inMemoryDB.stream().filter(
+                    row -> (row.getHotelId().intValue() == hotelId.intValue()))
+                    .collect(Collectors.toList());
+        }
+        else {
+            return findAll("","");
+        }
     }
 
     public List<HotelsModel> findAll(String sortKey,String direction) {

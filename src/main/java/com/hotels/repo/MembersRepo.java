@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -26,13 +27,17 @@ public class MembersRepo {
     CSVHelper csvHelper;
 
     @PostConstruct
-    private void InitDB() {
+    private void InitDB() throws FileNotFoundException {
         if (inMemoryDB == null) {
             inMemoryDB = connectToDB();
         }
     }
 
-    public MembersRepo(CSVHelper csvHelper){
+    public MembersRepo(){
+
+    }
+
+    public MembersRepo(CSVHelper csvHelper) throws FileNotFoundException {
         this.csvHelper = csvHelper;
         InitDB();
     }
@@ -49,12 +54,16 @@ public class MembersRepo {
         return rows;
     }
 
-    private List<MembersModel> connectToDB() {
+    private List<MembersModel> connectToDB() throws FileNotFoundException {
         List<MembersModel> hotelsDB = null;
 
         try {
             hotelsDB = parseMember();
-        } catch (Exception e) {
+        }
+        catch (FileNotFoundException e) {
+           throw e;
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
         return hotelsDB;
@@ -64,4 +73,10 @@ public class MembersRepo {
         return inMemoryDB;
     }
 
+
+    public List<MembersModel> findByApiKey(String key) {
+        return inMemoryDB.stream().filter(
+                row -> row.getName().equals(key))
+                .collect(Collectors.toList());
+    }
 }
