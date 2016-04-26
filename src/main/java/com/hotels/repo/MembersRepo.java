@@ -1,6 +1,5 @@
 package com.hotels.repo;
 
-import com.hotels.model.HotelsModel;
 import com.hotels.model.MembersModel;
 import com.hotels.utility.CSVHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +27,8 @@ public class MembersRepo {
 
     @PostConstruct
     private void InitDB() throws FileNotFoundException {
-        if (inMemoryDB == null) {
-            inMemoryDB = connectToDB();
+        if (this.inMemoryDB == null) {
+            this.inMemoryDB = connectToDB();
         }
     }
 
@@ -44,7 +43,7 @@ public class MembersRepo {
 
 
     public List<MembersModel> parseMember() throws Exception {
-        List<MembersModel> rows = csvHelper.parseCSV(path.toString()).stream()
+        List<MembersModel> rows = this.csvHelper.parseCSV(path.toString()).stream()
                 .map(row -> {
                     MembersModel membersModel = new MembersModel();
                     membersModel.setName (row[0]);
@@ -70,12 +69,12 @@ public class MembersRepo {
     }
 
     public List<MembersModel> findAll() {
-        return inMemoryDB;
+        return this.inMemoryDB;
     }
 
 
     public List<MembersModel> findByApiKey(String key) {
-        return inMemoryDB.stream().filter(
+        return this.inMemoryDB.stream().filter(
                 row -> row.getName().equals(key))
                 .collect(Collectors.toList());
     }

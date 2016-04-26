@@ -1,15 +1,11 @@
 package com.hotels.repo;
 
 import com.hotels.model.HotelsModel;
-import com.hotels.model.MembersModel;
 import com.hotels.utility.CSVHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.validation.constraints.Null;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -39,13 +35,13 @@ public class HotelsRepo {
 
     @PostConstruct
     private void InitDB() {
-        if (inMemoryDB == null) {
-            inMemoryDB = connectToDB();
+        if (this.inMemoryDB == null) {
+            this.inMemoryDB = connectToDB();
         }
     };
 
     private List<HotelsModel> parseHotels() throws Exception {
-        List<HotelsModel> rows = csvHelper.parseCSV(path.toString()).stream()
+        List<HotelsModel> rows = this.csvHelper.parseCSV(this.path.toString()).stream()
                 .map(row -> {
                     HotelsModel hotelsModel = new HotelsModel();
                     hotelsModel.setCity(row[0]);
@@ -71,26 +67,21 @@ public class HotelsRepo {
 
     }
 
-//    public List<HotelsModel> findHotelById(Integer hotelId) {
-//        return inMemoryDB.stream().filter(
-//                row -> row.getHotelId().intValue() == hotelId.intValue())
-//                .collect(Collectors.toList());
-//    }
 
     public List<HotelsModel> findHotelByHotelIdAndCityName(Integer hotelId, String cityName) {
         if (hotelId != null && !cityName.isEmpty()){
-            return inMemoryDB.stream().filter(
+            return this.inMemoryDB.stream().filter(
                     row -> (row.getHotelId().intValue() == hotelId.intValue()
                     && row.getCity().equals(cityName)))
                     .collect(Collectors.toList());
         }
         else if (hotelId == null && !cityName.isEmpty()){
-            return inMemoryDB.stream().filter(
+            return this.inMemoryDB.stream().filter(
                     row -> (row.getCity().equals(cityName)))
                     .collect(Collectors.toList());
         }
         else if (cityName.isEmpty() && hotelId != null) {
-            return inMemoryDB.stream().filter(
+            return this.inMemoryDB.stream().filter(
                     row -> (row.getHotelId().intValue() == hotelId.intValue()))
                     .collect(Collectors.toList());
         }
@@ -102,16 +93,16 @@ public class HotelsRepo {
     public List<HotelsModel> findAll(String sortKey,String direction) {
         if ("price".equalsIgnoreCase(sortKey)) {
             if ("desc".equalsIgnoreCase(direction)) {
-                return inMemoryDB.stream().sorted((h1,h2) ->
+                return this.inMemoryDB.stream().sorted((h1,h2) ->
                         Double.compare(h2.getPrice(),h1.getPrice()))
                         .collect(Collectors.toList());
             } else {
-                return inMemoryDB.stream().sorted((h1,h2) ->
+                return this.inMemoryDB.stream().sorted((h1,h2) ->
                         Double.compare(h1.getPrice(),h2.getPrice()))
                         .collect(Collectors.toList());
             }
         }
-        return inMemoryDB;
+        return this.inMemoryDB;
     }
 
 

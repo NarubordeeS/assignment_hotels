@@ -1,13 +1,10 @@
 package com.hotels.controller;
 
-import com.hotels.constant.ExceptionConstants;
 import com.hotels.constant.RateLimitExceptions;
-import com.hotels.model.HotelsModel;
-import com.hotels.repo.HotelsRepo;
-import com.hotels.response.Response;
 import com.hotels.constant.ResponseConstants;
+import com.hotels.model.HotelsModel;
+import com.hotels.response.Response;
 import com.hotels.service.HotelsService;
-import com.hotels.service.RateLimitService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -39,10 +36,10 @@ public class HotelsController {
         List<HotelsModel> results = null;
         try {
             if(hotelId == null && "".equals(cityName)) {
-                results = hotelsService.getAll(sortKey,direction,key);
+                results = this.hotelsService.getAll(sortKey,direction,key);
             }
             else {
-                results = hotelsService.getHotelsByHotelId(hotelId, cityName, key);
+                results = this.hotelsService.getHotelsByHotelId(hotelId, cityName, key);
             }
         } catch (RateLimitExceptions rateLimitExceptions) {
             return new Response(rateLimitExceptions.getMessage()).build(HttpStatus.BAD_REQUEST);

@@ -2,8 +2,11 @@ package com.hotels.service;
 
 import com.hotels.constant.RateLimitExceptions;
 import com.hotels.model.MembersModel;
+import com.hotels.model.UsersModel;
 import com.hotels.repo.HotelsRepo;
 import com.hotels.repo.MembersRepo;
+import com.hotels.repo.RateLimitRepo;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -26,22 +29,29 @@ public class RateLimitServiceTest {
     @Mock
     MembersRepo membersRepo;
 
+    @Mock
+    RateLimitRepo rateLimitRepo;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        rateLimitService = new RateLimitService(membersRepo);
+        this.rateLimitService = new RateLimitService(this.membersRepo, this.rateLimitRepo);
         List<MembersModel> mockMember = new ArrayList<>();
         MembersModel membersModel = new MembersModel();
         membersModel.setName("AAAA");
         membersModel.setLimit(1);
         mockMember.add(membersModel);
-        when(membersRepo.findByApiKey("AAAA")).thenReturn(mockMember);
+
+        UsersModel usersModel = new UsersModel(DateTime.now(),false);
+
+        when(this.membersRepo.findByApiKey("AAAA")).thenReturn(mockMember);
+        when(this.rateLimitRepo.findUserByApiKey("AAAA")).thenReturn(usersModel);
     }
 
     @Test
     public void shouldValidateKeySuccess() throws RateLimitExceptions {
         String apiKey = "AAAA";
-        rateLimitService.validateKey(apiKey);
+        this.rateLimitService.validateKey(apiKey);
         assert(true);
     }
 
@@ -49,8 +59,8 @@ public class RateLimitServiceTest {
     public void shouldValidateKeySuccessWhenValidateDifferentUsers() throws RateLimitExceptions {
         String apiKey1 = "AAAA";
         String apiKey2 = "BBBB";
-        rateLimitService.validateKey(apiKey1);
-        rateLimitService.validateKey(apiKey2);
+        this.rateLimitService.validateKey(apiKey1);
+        this.rateLimitService.validateKey(apiKey2);
         assert(true);
 
     }
@@ -58,18 +68,20 @@ public class RateLimitServiceTest {
     @Test
     public void shouldValidateKeyPassedWhenIntevalIsLessThanLimit() throws RateLimitExceptions, InterruptedException {
         String apiKey = "AAAA";
-        rateLimitService.validateKey(apiKey);
+        this.rateLimitService.validateKey(apiKey);
         Thread.sleep(1000);
-        rateLimitService.validateKey(apiKey);
+        this.rateLimitService.validateKey(apiKey);
         assert(true);
 
     }
 
     @Test(expected = RateLimitExceptions.class)
     public void shouldThrowExceptionWhenExceedLimit() throws RateLimitExceptions {
+        UsersModel usersModel = new UsersModel(DateTime.now().plusMinutes(1),false);
+        when(this.rateLimitRepo.findUserByApiKey("AAAA")).thenReturn(usersModel);
         String apiKey = "AAAA";
-        rateLimitService.validateKey(apiKey);
-        rateLimitService.validateKey(apiKey);
+        this.rateLimitService.validateKey(apiKey);
+        this.rateLimitService.validateKey(apiKey);
         assert(false);
     }
 

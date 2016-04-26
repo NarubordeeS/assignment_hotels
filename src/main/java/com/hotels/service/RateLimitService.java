@@ -5,13 +5,11 @@ import com.hotels.constant.RateLimitExceptions;
 import com.hotels.model.MembersModel;
 import com.hotels.model.UsersModel;
 import com.hotels.repo.MembersRepo;
+import com.hotels.repo.RateLimitRepo;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -23,55 +21,52 @@ public class RateLimitService {
     @Autowired
     MembersRepo membersRepo;
 
-    @Value("${hotels.rateLimit}")
-
-    private Integer rateLimit;
+    @Autowired
+    RateLimitRepo rateLimitRepo;
 
     public RateLimitService(){
 
     }
 
-    public RateLimitService(MembersRepo membersRepo){
+    public RateLimitService(MembersRepo membersRepo, RateLimitRepo rateLimitRepo){
         this.membersRepo = membersRepo;
+        this.rateLimitRepo = rateLimitRepo;
     }
-
-    private HashMap<String, UsersModel> limitDB = new HashMap<>();
-
-    final private Integer GLOBAL_LIMIT = 10;
-    final private Integer GLOBAL_SUSPEND = 300;
 
     public void validateKey(String key) throws RateLimitExceptions {
         Integer limitTime = checkMember(key);
-        if (limitDB.containsKey(key)) {
+        UsersModel user = this.rateLimitRepo.findUserByApiKey(key);
+        if (user != null) {
             DateTime currentTime = DateTime.now();
-            UsersModel users = limitDB.get(key);
-            if ((currentTime.compareTo(users.getAvailableTime())) >= 0) {
-                limitDB.put(key,new UsersModel(currentTime.plusSeconds(limitTime),false));
+
+            if ((currentTime.compareTo(user.getAvailableTime())) >= 0) {
+                this.rateLimitRepo.saveOrUpdate(key,new UsersModel(currentTime.plusSeconds(limitTime),false));
             } else {
                 //prevent user try to flush requests
                 //that cause suspend time is increased 5 min per request
-                if (users.getSuspend().booleanValue() == false) {
-                    users = new UsersModel(users.getAvailableTime().plusSeconds(GLOBAL_SUSPEND), true);
-                    limitDB.put(key, users);
+                if (user.getSuspend().booleanValue() == false) {
+                    UsersModel newUser = new UsersModel(user.getAvailableTime().plusSeconds(rateLimitRepo.getGlobalSuspend()), true);
+                    this.rateLimitRepo.saveOrUpdate(key, newUser);
                 }
                 throw new RateLimitExceptions(ExceptionConstants.SUSPEND.getContent()
-                        + ". Api will be availabled on "
-                        + users.getAvailableTime().toString("yyyy-MM-dd HH:mm:ss"));
+                        + ". Api will be available on "
+                        + user.getAvailableTime().toString("yyyy-MM-dd HH:mm:ss"));
             }
-        } else {
-            limitDB.put(key, new UsersModel(DateTime.now().plusSeconds(limitTime),false));
+        }
+        else {
+            this.rateLimitRepo.saveOrUpdate(key, new UsersModel(DateTime.now().plusSeconds(limitTime),false));
         }
 
         return;
     }
 
     private Integer checkMember(String key) {
-        List<MembersModel> results = membersRepo.findByApiKey(key);
-        if (results.size()>0){
+        List<MembersModel> results = this.membersRepo.findByApiKey(key);
+        if (results.size() > 0){
             return results.get(0).getLimit();
         }
         else {
-            return GLOBAL_LIMIT;
+            return this.rateLimitRepo.getGlobalLimit();
         }
     }
 }
