@@ -3,13 +3,16 @@ package com.hotels.repo;
 import com.hotels.constant.RateLimitExceptions;
 import com.hotels.model.UsersModel;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 
 /**
  * Created by narubordeesarnsuwan on 4/26/2016 AD.
  */
+@Component
 public class RateLimitRepo {
+
     private HashMap<String, UsersModel> limitDB = new HashMap<>();
 
     public RateLimitRepo() {

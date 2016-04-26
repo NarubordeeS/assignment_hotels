@@ -70,7 +70,7 @@ public class HotelsControllerTest {
                 .andExpect(status().isOk());
 
         verify(hotelsService, Mockito.times(1)).getAll(anyString(),anyString(),anyString());
-        verify(hotelsService, Mockito.times(0)).getHotelsByHotelId(anyInt(),anyString(),anyString());
+        verify(hotelsService, Mockito.times(0)).getHotelsByHotelId(anyInt(),anyString(),anyString(),anyString(),anyString());
     }
 
     @Test
@@ -84,14 +84,14 @@ public class HotelsControllerTest {
         results.add(hotel1);
 
 
-        when(hotelsService.getHotelsByHotelId(anyInt(),anyString(),anyString())).thenReturn(results);
+        when(hotelsService.getHotelsByHotelId(anyInt(),anyString(),anyString(),anyString(),anyString())).thenReturn(results);
 
-        mvc.perform(get("/api/v1/hotels/AAAAA?hotel_id=1"))
+        mvc.perform(get("/api/v1/hotels/AAAAA?id=1"))
                 .andExpect(jsonPath("$.data", hasSize(1)))
                 .andExpect(jsonPath("$.message", is("success")))
                 .andExpect(status().isOk());
 
-        verify(hotelsService, Mockito.times(1)).getHotelsByHotelId(anyInt(),anyString(),anyString());
+        verify(hotelsService, Mockito.times(1)).getHotelsByHotelId(anyInt(),anyString(),anyString(),anyString(),anyString());
         verify(hotelsService, Mockito.times(0)).getAll(anyString(),anyString(),anyString());
     }
 }

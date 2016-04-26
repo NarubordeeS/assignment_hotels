@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -27,7 +28,7 @@ public class MembersRepo {
 
     @PostConstruct
     private void InitDB() throws FileNotFoundException {
-        if (this.inMemoryDB == null) {
+        if (!Optional.ofNullable(this.inMemoryDB).isPresent()) {
             this.inMemoryDB = connectToDB();
         }
     }

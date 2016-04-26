@@ -54,7 +54,9 @@ jacocoTestReport {
                     exclude: ['com/hotels/model/**',
                               'com/hotels/response/**',
                               'com/hotels/utility/**',
-                              'com/hotels/config/**'
+                              'com/hotels/config/**',
+                              'com/hotels/constant/**',
+                              'com/hotels/application*'
                     ])
         })
     }

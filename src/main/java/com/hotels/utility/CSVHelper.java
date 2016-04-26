@@ -1,13 +1,10 @@
 package com.hotels.utility;
 
-import com.hotels.model.HotelsModel;
-import com.hotels.model.MembersModel;
 import com.univocity.parsers.common.processor.RowListProcessor;
-import com.univocity.parsers.common.processor.RowProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,13 +13,12 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by narubordeesarnsuwan on 4/24/2016 AD.
  */
 @Slf4j
-@Service
+@Component
 public class CSVHelper {
 
     public List<String[]> parseCSV(String path) throws FileNotFoundException {

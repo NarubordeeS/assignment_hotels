@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by narubordeesarnsuwan on 4/24/2016 AD.
@@ -36,7 +37,7 @@ public class RateLimitService {
     public void validateKey(String key) throws RateLimitExceptions {
         Integer limitTime = checkMember(key);
         UsersModel user = this.rateLimitRepo.findUserByApiKey(key);
-        if (user != null) {
+        if (Optional.ofNullable(user).isPresent()) {
             DateTime currentTime = DateTime.now();
 
             if ((currentTime.compareTo(user.getAvailableTime())) >= 0) {

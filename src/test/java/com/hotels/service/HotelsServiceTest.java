@@ -95,7 +95,7 @@ public class HotelsServiceTest {
         hotel1.setRoom("Deluxe");
         results.add(hotel1);
 
-        when(hotelsRepo.findHotelByHotelIdAndCityName(anyInt(),anyString())).thenReturn(results);
+        when(hotelsRepo.findHotelByHotelIdAndCityName(anyInt(),anyString(),anyString(),anyString())).thenReturn(results);
 
         try {
             doNothing().when(rateLimitService).validateKey(anyString());
@@ -104,12 +104,12 @@ public class HotelsServiceTest {
         }
 
         try {
-            hotelsService.getHotelsByHotelId(1,"","");
+            hotelsService.getHotelsByHotelId(1,"","","","");
         } catch (RateLimitExceptions rateLimitExceptions) {
             rateLimitExceptions.printStackTrace();
         }
 
-        verify(hotelsRepo, Mockito.times(1)).findHotelByHotelIdAndCityName(1,"");
+        verify(hotelsRepo, Mockito.times(1)).findHotelByHotelIdAndCityName(1,"","","");
         try {
             verify(rateLimitService, Mockito.times(1)).validateKey(anyString());
         } catch (RateLimitExceptions rateLimitExceptions) {

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
@@ -53,9 +54,16 @@ public class HotelsRepoTest {
         row3[2]= "Single";
         row3[3]= "250";
 
+        String[] row4 = new String[4];
+        row4[0]= "Hongkong";
+        row4[1]= "4";
+        row4[2]= "Single";
+        row4[3]= "120";
+
         hotelCsv.add(row1);
         hotelCsv.add(row2);
         hotelCsv.add(row3);
+        hotelCsv.add(row4);
 
         when(csvHelper.parseCSV(anyString())).thenReturn(hotelCsv);
 
@@ -65,7 +73,7 @@ public class HotelsRepoTest {
 
     @Test
     public void shouldfindHotelByIdCorrectly() throws FileNotFoundException {
-        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(1,"");
+        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(1,"","","");
         assertNotNull(results);
         HotelsModel result = results.get(0);
         assertEquals("Bangkok",result.getCity());
@@ -76,7 +84,7 @@ public class HotelsRepoTest {
 
     @Test
     public void shouldfindHotelByCityCorrectly() throws FileNotFoundException {
-        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(null,"Bangkok");
+        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(null,"Bangkok","","");
         assertNotNull(results);
         HotelsModel result = results.get(0);
         assertEquals("Bangkok",result.getCity());
@@ -88,9 +96,9 @@ public class HotelsRepoTest {
 
     @Test
     public void shouldfindHotelByCityWhenParametersAreNullCorrectly() throws FileNotFoundException {
-        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(null,"");
+        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(null,"","","");
         assertNotNull(results);
-        assertEquals(3,results.size());
+        assertEquals(4,results.size());
         HotelsModel result = results.get(0);
         assertEquals("Bangkok",result.getCity());
         assertEquals(1,result.getHotelId().intValue());
@@ -101,7 +109,7 @@ public class HotelsRepoTest {
 
     @Test
     public void shouldfindHotelByIdAndCityCorrectly() throws FileNotFoundException {
-        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(1,"Bangkok");
+        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(1,"Bangkok","","");
         assertNotNull(results);
         HotelsModel result = results.get(0);
         assertEquals("Bangkok",result.getCity());
@@ -115,39 +123,64 @@ public class HotelsRepoTest {
     public void shouldFindAllWithEmptyFilterCorrectly() throws FileNotFoundException {
         List<HotelsModel> results = hotelsRepo.findAll("","");
         assertNotNull(results);
-        assertEquals(3,results.size());
+        assertEquals(4,results.size());
         assertEquals("Bangkok",results.get(0).getCity());
         assertEquals("Tokyo",results.get(1).getCity());
         assertEquals("Hongkong",results.get(2).getCity());
+        assertEquals("Hongkong",results.get(3).getCity());
     }
 
     @Test
     public void shouldFindAllWithSortingPriceCorrectly() throws FileNotFoundException {
         List<HotelsModel> results = hotelsRepo.findAll("price","");
         assertNotNull(results);
-        assertEquals(3,results.size());
+        assertEquals(4,results.size());
         assertEquals("Bangkok",results.get(0).getCity());
         assertEquals("Hongkong",results.get(1).getCity());
-        assertEquals("Tokyo",results.get(2).getCity());
+        assertEquals("Hongkong",results.get(2).getCity());
+        assertEquals("Tokyo",results.get(3).getCity());
     }
 
     @Test
     public void shouldFindAllWithSortingAscendingPriceCorrectly() throws FileNotFoundException {
         List<HotelsModel> results = hotelsRepo.findAll("price","asc");
         assertNotNull(results);
-        assertEquals(3,results.size());
+        assertEquals(4,results.size());
         assertEquals("Bangkok",results.get(0).getCity());
         assertEquals("Hongkong",results.get(1).getCity());
-        assertEquals("Tokyo",results.get(2).getCity());
+        assertEquals("Hongkong",results.get(2).getCity());
+        assertEquals("Tokyo",results.get(3).getCity());
     }
 
     @Test
     public void shouldFindAllWithSortingDescendingPriceCorrectly() throws FileNotFoundException {
         List<HotelsModel> results = hotelsRepo.findAll("price","desc");
         assertNotNull(results);
-        assertEquals(3,results.size());
+        assertEquals(4,results.size());
+
         assertEquals("Tokyo",results.get(0).getCity());
         assertEquals("Hongkong",results.get(1).getCity());
-        assertEquals("Bangkok",results.get(2).getCity());
+        assertEquals("Hongkong",results.get(2).getCity());
+        assertEquals("Bangkok",results.get(3).getCity());
+    }
+
+    @Test
+    public void shouldReturnNullWhenIdIsNotExistCorrectly() throws FileNotFoundException {
+        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(9999,"Hanoi","","");
+        assertEquals(0,results.size());
+    }
+
+    @Test
+    public void shouldSortWhenSortKeyIsProvidedCorrectly() throws FileNotFoundException {
+        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(null,"Hongkong","price","asc");
+        assertEquals(new Double(120),results.get(0).getPrice());
+        assertEquals(new Double(250),results.get(1).getPrice());
+    }
+
+    @Test
+    public void shouldNotSortWhenSortKeyIsNotProvidedCorrectly() throws FileNotFoundException {
+        List<HotelsModel> results = hotelsRepo.findHotelByHotelIdAndCityName(null,"Hongkong","","asc");
+        assertEquals(new Double(250),results.get(0).getPrice());
+        assertEquals(new Double(120),results.get(1).getPrice());
     }
 }

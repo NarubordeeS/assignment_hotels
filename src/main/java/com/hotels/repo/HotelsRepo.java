@@ -9,6 +9,7 @@ import javax.annotation.PostConstruct;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -35,7 +36,7 @@ public class HotelsRepo {
 
     @PostConstruct
     private void InitDB() {
-        if (this.inMemoryDB == null) {
+        if (!Optional.ofNullable(this.inMemoryDB).isPresent()) {
             this.inMemoryDB = connectToDB();
         }
     };
@@ -68,41 +69,59 @@ public class HotelsRepo {
     }
 
 
-    public List<HotelsModel> findHotelByHotelIdAndCityName(Integer hotelId, String cityName) {
-        if (hotelId != null && !cityName.isEmpty()){
-            return this.inMemoryDB.stream().filter(
+    public List<HotelsModel> findHotelByHotelIdAndCityName(Integer hotelId, String cityName, String sortKey, String direction) {
+        List<HotelsModel> result = null;
+
+        if (Optional.ofNullable(hotelId).isPresent()
+                && !cityName.isEmpty()){
+            result = this.inMemoryDB.stream().filter(
                     row -> (row.getHotelId().intValue() == hotelId.intValue()
                     && row.getCity().equals(cityName)))
                     .collect(Collectors.toList());
         }
-        else if (hotelId == null && !cityName.isEmpty()){
-            return this.inMemoryDB.stream().filter(
+        else if (!Optional.ofNullable(hotelId).isPresent()
+                && !cityName.isEmpty()){
+            result = this.inMemoryDB.stream().filter(
                     row -> (row.getCity().equals(cityName)))
                     .collect(Collectors.toList());
         }
-        else if (cityName.isEmpty() && hotelId != null) {
-            return this.inMemoryDB.stream().filter(
+        else if (Optional.ofNullable(hotelId).isPresent()
+                && cityName.isEmpty()) {
+            result = this.inMemoryDB.stream().filter(
                     row -> (row.getHotelId().intValue() == hotelId.intValue()))
                     .collect(Collectors.toList());
         }
         else {
-            return findAll("","");
+            result = this.inMemoryDB;
         }
+
+        if (Optional.ofNullable(sortKey).isPresent()
+                && !sortKey.isEmpty()) {
+            return this.sort(result, sortKey, direction);
+        } else {
+            return result;
+        }
+
+
     }
 
     public List<HotelsModel> findAll(String sortKey,String direction) {
-        if ("price".equalsIgnoreCase(sortKey)) {
+        return this.sort(this.inMemoryDB,sortKey,direction);
+    }
+
+    public List<HotelsModel> sort(List<HotelsModel> raw,String sortkey, String direction) {
+        if ("price".equalsIgnoreCase(sortkey)) {
             if ("desc".equalsIgnoreCase(direction)) {
-                return this.inMemoryDB.stream().sorted((h1,h2) ->
+                return raw.stream().sorted((h1,h2) ->
                         Double.compare(h2.getPrice(),h1.getPrice()))
                         .collect(Collectors.toList());
             } else {
-                return this.inMemoryDB.stream().sorted((h1,h2) ->
+                return raw.stream().sorted((h1,h2) ->
                         Double.compare(h1.getPrice(),h2.getPrice()))
                         .collect(Collectors.toList());
             }
         }
-        return this.inMemoryDB;
+        return raw;
     }
 
 
