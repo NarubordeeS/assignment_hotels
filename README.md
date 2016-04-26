@@ -19,13 +19,14 @@ How to run unit-test
 
 API Document
   localhost:8080/api/v1/hotels/{apikey}?id={hotel_id}&city={city_name}&sort={sort_key}&direction={direction}
-  - apikey is require field
-  - hotel_id is optional field
-  - city_name is optional field
-  - sort_key is optional field which is price
-  - direction is optional field which are asc, desc
+  * apikey is require field
+  * hotel_id is optional field
+  * city_name is optional field
+  * sort_key is optional field which is price
+  * direction is optional field which are asc, desc
   note that result is intersected between hotel_id and city_name
-  ex. 
+
+  Example 
     - http://localhost:8080/api/v1/hotels/AAAAA
     - http://localhost:8080/api/v1/hotels/AAAAA?id=1
     - http://localhost:8080/api/v1/hotels/AAAAA?city=Bangkok
